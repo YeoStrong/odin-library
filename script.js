@@ -134,6 +134,6 @@ resetButton.addEventListener("click", () => {
 
     displaysBooks();
 
-    alert("Your library has emptied.");
+    alert("Your library has been emptied.");
   }
 });
