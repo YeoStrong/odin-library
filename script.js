@@ -45,6 +45,7 @@ function displaysBooks() {
       const index = myLibrary.findIndex((item) => item.id === book.id);
       if (index !== -1) {
         myLibrary.splice(index, 1);
+        saveLocal();
         displaysBooks();
       }
     });
@@ -52,10 +53,12 @@ function displaysBooks() {
     changeStatusButton.innerText = "CHANGE STATUS";
     changeStatusButton.addEventListener("click", () => {
       book.toggleRead();
+      saveLocal();
       displaysBooks();
     });
 
     actions.appendChild(deleteButton);
+    actions.appendChild(changeStatusButton);
 
     row.appendChild(title);
     row.appendChild(author);
@@ -77,7 +80,7 @@ libraryForm.addEventListener("submit", (e) => {
   const isread = document.querySelector("#isread").checked;
 
   addBookToLibrary(title, author, pages, isread);
-
+  saveLocal();
   displaysBooks();
 
   libraryForm.reset();
@@ -95,4 +98,42 @@ openModalButton.addEventListener("click", () => {
 
 closeModalButton.addEventListener("click", () => {
   modal.style.display = "none";
+});
+
+function saveLocal() {
+  localStorage.setItem("myLibrary", JSON.stringify(myLibrary));
+}
+
+const storedLibrary = localStorage.getItem("myLibrary");
+if (storedLibrary) {
+  const parsedLibrary = JSON.parse(storedLibrary);
+
+  parsedLibrary.forEach((bookData) => {
+    const newBook = new Book(
+      bookData.title,
+      bookData.author,
+      bookData.pages,
+      bookData.isRead,
+    );
+
+    newBook.id = bookData.id;
+
+    myLibrary.push(newBook);
+  });
+
+  displaysBooks();
+}
+
+const resetButton = document.querySelector("#reset-button");
+
+resetButton.addEventListener("click", () => {
+  if (confirm("Are you sure? All your books will be deleted.")) {
+    myLibrary.length = 0;
+
+    localStorage.removeItem("myLibrary");
+
+    displaysBooks();
+
+    alert("Your library has emptied.");
+  }
 });
